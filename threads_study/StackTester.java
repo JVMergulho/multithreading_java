@@ -1,5 +1,5 @@
 
-public class ThreadTester {
+public class StackTester {
     public static void main(String[] args) {
 
         Stack stack = new Stack(5);

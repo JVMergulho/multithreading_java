@@ -9,6 +9,7 @@ class Stack {
     }
 
     public boolean push(int elem){
+        // qualquer objeto pode ser usado como lock
         synchronized(lock) {
             if(isFull()) return false;
             ++ stackTop;
@@ -21,6 +22,8 @@ class Stack {
     }
 
     public int pop(){
+        // como push e pop usam o mesmo lock duas threads não podem 
+        // ter acesso a push e pop ao mesmo tempo
         synchronized(lock) {
             if(isEmpty()) return Integer.MIN_VALUE;
             int elem = container[stackTop];
