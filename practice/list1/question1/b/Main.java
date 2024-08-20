@@ -63,7 +63,7 @@ public class Main{
         int value;
 
         for(int i = 0; i < 100_000; i ++){
-            value = rand.nextInt(100);
+            value = rand.nextInt();
             tree.insert(value);
         }
         

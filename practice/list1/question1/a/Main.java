@@ -75,7 +75,7 @@ class Producer extends Thread{
         int count = 0;
 
         while(count < 2000){
-            value = rand.nextInt(100);
+            value = rand.nextInt();
             tree.insert(value);
             //System.out.println("Thread " + id + " inseriu " + value);
             count++;
