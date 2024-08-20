@@ -6,43 +6,44 @@
 // (b) Meca o tempo de execucao do seu programa, comparando-o com o de uma execucao puramente
 // sequencial.
 
-package practice.list1.question1;
+package practice.list1.question1.a;
 
 import java.util.*;
 
 class BSTree{
-    Node root;
-    
-    public BSTree(){
-        root = null;
-    }
+    private Node root = null;
+    private int size = 0;
 
-    public void insert(int value){
-        synchronized(this){
-                if(root == null){
-                    root = new Node(value);
-                    return;
-                }
+    public synchronized void insert(int value){
+        size++;
+        
+        if(root == null){
+            root = new Node(value);
+            return;
+        }
 
-                Node curr = root;
-                Node next = curr;
+        Node curr = root;
+        Node next = curr;
 
-                while(next != null){
-                    curr = next;
-                    if(value < curr.value){
-                        next = curr.left;
-                    } else{
-                        next = curr.right;
-                    }
-                }
-
-                if(value < curr.value){
-                    curr.left = new Node(value);
-                } else{
-                    curr.right = new Node(value);
-                }
+        while(next != null){
+            curr = next;
+            if(value < curr.value){
+                next = curr.left;
+            } else{
+                next = curr.right;
             }
         }
+
+        if(value < curr.value){
+            curr.left = new Node(value);
+        } else{
+            curr.right = new Node(value);
+        }
+    }
+
+    public int getSize(){
+        return size;
+    }
         
 }
 
@@ -76,7 +77,7 @@ class Producer extends Thread{
         while(count < 2000){
             value = rand.nextInt(100);
             tree.insert(value);
-            System.out.println("Thread " + id + " inseriu " + value);
+            //System.out.println("Thread " + id + " inseriu " + value);
             count++;
         }
     }
@@ -84,11 +85,27 @@ class Producer extends Thread{
 
 public class Main{
     public static void main(String[] args){
+        // Medição de tempo
+        long startTime = System.currentTimeMillis();
+
         BSTree tree = new BSTree();
         List<Producer> producers = new ArrayList<Producer>();
 
         for(int i = 0; i < 50; i ++){
-            new Producer(tree, i).start();
+            producers.add(new Producer(tree, i));
+            producers.get(i).start();
         }
+
+        for(Producer p: producers){
+            try {
+                p.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        
+        long endTime = System.currentTimeMillis();
+        System.out.println("Número de nós inseridos: " + tree.getSize());
+        System.out.println("Tempo de execução: " + (endTime - startTime) + " ms");
     }
 }

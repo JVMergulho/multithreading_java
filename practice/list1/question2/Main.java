@@ -1,48 +1,52 @@
-// Defina uma classe ArvoreBusca que implementa uma  ́arvore de busca onde  ́e poss ́ıvel realizar insercoes 
-// de elementos. Essa estrutura de dados deve funcionar com v ́arias threads. Fa ̧ca o que  ́e pedido:
-// (a) Implemente um metodo main() que cria 50 threads onde cada uma insere 2000 n umeros aleat ́orios
-// nessa arvore. Seu programa deve informar a quantidade de n ́os total da  arvore ap os todas as
-// insercoes
-// (b) Meca o tempo de execucao do seu programa, comparando-o com o de uma execucao puramente
-// sequencial.
 
 package practice.list1.question2;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 class BSTree{
-    Node root;
-    
-    public BSTree(){
-        root = null;
-    }
+    private Node root = null;
+    private final AtomicInteger size = new AtomicInteger(0);
 
     public void insert(int value){
-        synchronized(this){
-                if(root == null){
+        if (root == null) {
+            synchronized(this) {
+                if (root == null) { 
                     root = new Node(value);
+                    size.incrementAndGet();
                     return;
-                }
-
-                Node curr = root;
-                Node next = curr;
-
-                while(next != null){
-                    curr = next;
-                    if(value < curr.value){
-                        next = curr.left;
-                    } else{
-                        next = curr.right;
-                    }
-                }
-
-                if(value < curr.value){
-                    curr.left = new Node(value);
-                } else{
-                    curr.right = new Node(value);
                 }
             }
         }
+
+        Node curr = root;
+        Node next;
+
+        while(true){
+            synchronized(curr){
+                if(value < curr.value){
+                next = curr.left;
+                if(curr.left == null){
+                    curr.left = new Node(value);
+                    size.incrementAndGet();
+                    break;
+                } 
+                } else{
+                    next = curr.right;
+                    if(curr.right == null){
+                        curr.right = new Node(value);
+                        size.incrementAndGet();
+                        break;
+                    } 
+                }
+            }
+            curr = next;
+        }
+    }
+
+    public int getSize(){
+        return size.get();
+    }
         
 }
 
@@ -76,7 +80,7 @@ class Producer extends Thread{
         while(count < 2000){
             value = rand.nextInt(100);
             tree.insert(value);
-            System.out.println("Thread " + id + " inseriu " + value);
+            //System.out.println("Thread " + id + " inseriu " + value);
             count++;
         }
     }
@@ -84,11 +88,27 @@ class Producer extends Thread{
 
 public class Main{
     public static void main(String[] args){
+        // Medição de tempo
+        long startTime = System.currentTimeMillis();
+
         BSTree tree = new BSTree();
         List<Producer> producers = new ArrayList<Producer>();
 
         for(int i = 0; i < 50; i ++){
-            new Producer(tree, i).start();
+            producers.add(new Producer(tree, i));
+            producers.get(i).start();
         }
+
+        for(Producer p: producers){
+            try {
+                p.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        
+        long endTime = System.currentTimeMillis();
+        System.out.println("Número de nós inseridos: " + tree.getSize());
+        System.out.println("Tempo de execução: " + (endTime - startTime) + " ms");
     }
 }

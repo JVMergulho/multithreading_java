@@ -23,3 +23,11 @@ Há regiões críticas em que queremos que apenas uma thread tenha acesso a cert
 
 Ao criar um bloco synchronized é necessário passar um objeto explicitamente como lock
 Ao fazer um método synchronized o lock é passado implicitamente: todos os métodos synchronized em uma classe usam o mesmo lock (this) e, portanto, estão ligados. 
+
+## Falhas de liveness:
+
+- Deadlock: duas threads são bloqueadas para sempre esperando uma pela outra. Ocorre quando uma há exclusão mútua (apenas um processo de posse de cada
+recurso) e dependência circular (um processo depende dos recursos de
+outro processo e vice-versa)
+- Starvation: uma thread não tem acesso a um recurso compartilhado por um longo período pois este está sendo monopolizado por outra thread
+- livelock: threads estão ativas e mudando de estado, mas não conseguem avançar para a conclusão de suas tarefas porque estão constantemente tentando resolver um conflito
