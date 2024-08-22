@@ -1,0 +1,7 @@
+Tempos de execução:
+
+versão com travamento da árvore inteira: 62 ms
+versão com travamento de nó: 35 ms
+versão sequencial: 49 ms
+
+Creio que a versão sequencial foi mais rápida que a versão com threads da letra A devido ao overhead de criação das threads. No entanto, observamos que a versão concorrente com granularidade menor apresenta melhor desempenho.
